@@ -53,7 +53,7 @@ app.post("/",function(req,res,next){
   //"insert into users (name)"+" values ({$username})", newName
   db.none('INSERT INTO users(name)'+'values(${username})', req.body) 
   .then(function (data){  
-    res.render('to_do', {username:newName})
+    res.render('index', {newName:'Account Created'})
   })
   .catch(function (data){
     var err = new Error('Already exists');
