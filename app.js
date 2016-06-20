@@ -60,11 +60,12 @@ app.post("/",function(req,res,next){
     return next(err);
   });
 });
-app.post("/users",function(req,res){
+app.post("/users",function(req,res,next){
   var newName=req.body.username;
-  db.one('select * from users where name={$username}' ,req.body)
+  console.log(newName);
+  db.one('select * from users where name=${username}' ,{username:newName})
    .then(function (data){
-     res.render('to_do',{username:newName})
+     res.render('to_do', {username:newName})
    })
    .catch(function(data){
     var err = new Error('name not found');
