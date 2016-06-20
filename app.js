@@ -63,9 +63,9 @@ app.post("/",function(req,res,next){
 app.post("/users",function(req,res,next){
   var newName=req.body.username;
   console.log(newName);
-  db.one('select * from users where name=${username}' ,{username:newName})
+  db.one('select * from users where name=${username} ' ,{username:newName})
    .then(function (data){
-     res.render('to_do', {username:newName})
+     res.render('to_do',{username:newName})
    })
    .catch(function(data){
     var err = new Error('name not found');
