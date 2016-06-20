@@ -48,11 +48,11 @@ app.get('/',function(req,res){
 });
 
 app.post("/",function(req,res,next){
-  var newName = {
-   id: req.body.username
-  }
-  db.none("insert into users (name) values ({$id})", newName ) 
-  .then(function (data){
+  var newName = req.body.username;
+  console.log(newName);
+  //"insert into users (name)"+" values ({$username})", newName
+  db.none('INSERT INTO users(name)'+'values(${username})', req.body) 
+  .then(function (data){  
     res.render('to_do', {username:newName})
   })
   .catch(function (data){
@@ -61,7 +61,15 @@ app.post("/",function(req,res,next){
   });
 });
 app.post("/users",function(req,res){
-  res.response("req.body.username");
+  var newName=req.body.username;
+  db.one('select * from users where name={$username}' ,req.body)
+   .then(function (data){
+     res.render('to_do',{username:newName})
+   })
+   .catch(function(data){
+    var err = new Error('name not found');
+    return next(err);
+   });
 });
 
 
