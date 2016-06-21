@@ -1,5 +1,8 @@
+ <link rel="stylesheet" type="text/css" href="style.css">
 <h1>{{username}}'s to do page</h1>
-<ul>
-	<li>{{data}}</li>
+<ul>	
+	{{#each data}}
+	<li><a id="message" name={{{this.row.[1]}}}>{{this.row}}</a></li>
+	{{/each}}
 </ul>
 

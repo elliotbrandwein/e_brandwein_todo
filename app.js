@@ -8,6 +8,8 @@ var promise = require('bluebird');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var to_do = require('./routes/to_do');
+
 var options =  {
   promiseLib: promise
 };
@@ -65,13 +67,13 @@ app.post("/users",function(req,res,next){
   db.one('select * from users where name=${username} ' ,{username:newName})
    .then(function (data){
     var ID = data.id;
-    db.manyOrNone('select * from messages where userId=${id}',{id:ID})
+    db.manyOrNone('select (id,message) from messages where userId=${id}',{id:ID})
       .then(function(data){
         console.log(data);
         res.render('to_do',{username:newName,data:data})
       })
       .catch(function(data){
-        var err = new Error ('name found, message getter messed up');
+        var err = new Error ('name found, message-getter messed up');
         return next(err);
       })
    })
