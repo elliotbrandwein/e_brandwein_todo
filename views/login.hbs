@@ -1,7 +1,9 @@
-<h1>All Users</h1>
-
+<h1>List of Users</h1>
+{{#each data}}
+<li>{{this.name}}</li>
+{{/each}}
+<h4>login to an account</h4>
 <form action="/users" method="POST">
 	<input type="text" placeholder="username" name="username">
-	<input type="password" placeholder="password" name="password">
-	<input type="submit">
+	<input type="submit" value="Login">
 </form>

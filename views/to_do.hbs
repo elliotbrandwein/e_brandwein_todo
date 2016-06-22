@@ -3,9 +3,9 @@
 
 	{{#each data}}
 	<div class="to_do">
-	<form action="/to_do" method="GET" class="delete">
+	<form action="/delete/to_do/{{this.id}}" method="POST" class="delete">
 	<button>X</button>
-	<a class="message" name={{{this.row.[1]}}}> {{this.message}}</a>
+	<a class="message"> {{this.message}}</a>
 	</form>
 	</div>
 	{{/each}}
@@ -13,5 +13,7 @@
 	<input type="text" placeholder="new To-do" name="newTodo">
 	<input type="submit"  value="create new to-do">
 </form>
+<h1>{{this.deleteMessage}}</h1>
+<h1>{{this.id}}</h1>
 
 
