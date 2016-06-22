@@ -1,8 +1,17 @@
  <link rel="stylesheet" type="text/css" href="style.css">
-<h1>{{username}}'s to do page</h1>
-<ul>	
+<h1>{{username}}'s to-do page</h1>
+
 	{{#each data}}
-	<li><a id="message" name={{{this.row.[1]}}}>{{this.row}}</a></li>
+	<div class="to_do">
+	<form action="/to_do" method="GET" class="delete">
+	<button>X</button>
+	<a class="message" name={{{this.row.[1]}}}> {{this.message}}</a>
+	</form>
+	</div>
 	{{/each}}
-</ul>
+<form action="/to_do" method="POST">
+	<input type="text" placeholder="new To-do" name="newTodo">
+	<input type="submit"  value="create new to-do">
+</form>
+
 

@@ -67,10 +67,10 @@ app.post("/users",function(req,res,next){
   db.one('select * from users where name=${username} ' ,{username:newName})
    .then(function (data){
     var ID = data.id;
-    db.manyOrNone('select (id,message) from messages where userId=${id}',{id:ID})
+    db.manyOrNone('select id,message from messages where userId=${id}',{id:ID})
       .then(function(data){
-        console.log(data);
-        res.render('to_do',{username:newName,data:data})
+        console.log(data); 
+        res.render('to_do',{username:newName,data:data,id:ID})
       })
       .catch(function(data){
         var err = new Error ('name found, message-getter messed up');
@@ -83,6 +83,32 @@ app.post("/users",function(req,res,next){
    });
 
 });
+app.post("/to_do",function(req,res,next){
+  var userId=req.body.Id;
+  var newTodo=req.body.newTodo;
+  db.none('INSERT INTO users(message,userID)'+'values(${toDo},${userID})' ,{toDo:newTodo,userID:userId})
+   .then(function (data){
+    var ID = data.id;
+    db.manyOrNone('select (id,message) from messages where userId=${id}',{id:ID})
+      .then(function(data){
+        console.log(data);
+        res.render('to_do',{username:newName,data:data,id:ID})
+      })
+      .catch(function(data){
+        var err = new Error ('name found, message-getter messed up');
+        return next(err);
+      })
+   })
+   .catch(function(data){
+    var err = new Error('name not found');
+    return next(err);
+   });
+});
+
+app.get("/to_do",function(req,res,next){
+  var  id = req.params.id;
+  console.log(id);
+})
 
 
 // catch 404 and forward to error handler
