@@ -42,7 +42,7 @@ var db = pgp('postgres://postgres:123@localhost:5432/to_do');
 app.get('/users',function(req,res,next){
   db.any('SELECT name FROM users')
   .then(function(data){
-    console.log(data);
+    console.log(data+" got the users");
     res.render('login',{ data: data });
   })
   .catch(function(err){
@@ -58,7 +58,7 @@ app.get('/',function(req,res){
 // creates new user
 app.post("/",function(req,res,next){
   var newName = req.body.username;
-  console.log(newName);
+  console.log(newName+" got the new user");
   db.none('INSERT INTO users(name)'+'values(${username})', req.body) 
   .then(function (data){  
     res.render('index', {newName:'Account Created'})
@@ -69,7 +69,7 @@ app.post("/",function(req,res,next){
   });
 });
 
-//loads the user pages, shows user name and all thier messages
+//loads the to-do page of a user with all thier old to-do's
 app.post("/users",function(req,res,next){
   var newName=req.body.username;
   db.one('select * from users where name=${username} ' ,{username:newName})
@@ -77,7 +77,7 @@ app.post("/users",function(req,res,next){
     var ID = data.id;
     db.manyOrNone('select id,message from messages where userId=${id}',{id:ID})
       .then(function(data){
-        console.log(data); 
+        console.log(data+" got from loading user"); 
         res.render('to_do',{username:newName,data:data,id:ID})
       })
       .catch(function(data){
@@ -89,22 +89,37 @@ app.post("/users",function(req,res,next){
     var err = new Error('name not found');
     return next(err);
    });
-
 });
-// add to-do message
-app.post("/to_do",function(req,res,next){
 
+
+// add's a new to-do message
+app.post("/to_do/:userId",function(req,res,next){
+  var userID = req.params.userId;
+  var message = req.body.newTodo;
+  db.none('insert into messages (userid,message) values (${1},${2})',{1:userID,2:message})
+  .then({}).catch(function(data){
+       res.redirect('/users/');
+      });
+   db.manyOrNone('select id,message from messages where userId=${id}',{id:userID})
+      .then(function(data){
+        console.log(data+ " from adding new message"); 
+        res.render('to_do',{username:newName,data:data,id:ID})
+      })
+      .catch(function(data){
+        var err = new Error ('name found, message-getter messed up');
+        return next(err);
+      })
 });
 // delete to-do message
 app.post("/delete/to_do/:id",function(req,res,next){
   var  id = req.params.id;
-  db.none('delete from messages where id=$1',id)
-  .then(function(data){
-    res.render('to_do'){username:newName,data:data,deleteMessage:'Message Deleted'},id:id}
-  })
-  .catch(function(data){
-  });
-})
+  //db.none('delete from messages where id=$1',id)
+  //.then(function(data){
+  //  res.render('to_do'){username:newName,data:data,deleteMessage:'Message Deleted'},id:id}
+  //})
+  //.catch(function(data){
+  //});
+});
 
 
 
