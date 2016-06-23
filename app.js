@@ -61,13 +61,18 @@ app.get('/',function(req,res){
 app.post("/",function(req,res,next){
   var newName = req.body.username;
   var pass = req.body.password;
+  if(newName ==='') {
+    res.render('index', {newName:'That was not a valid name'});
+    return;
+  }
    db.none('INSERT INTO users(name,password)'+'values(${newName},${password})',{ newName:newName,password:pass}) 
   .then(function (data){  
     res.render('index', {newName:'Account Created'})
   })
   .catch(function (data){
-    var err = new Error('Already exists');
-    return next(err);
+    var err = new Error('Already exists or username invalid');
+    //return next(err);
+    res.render('index', {newName:'That was not a valid name'})
   });
   console.log("new user "+newName+" has been created");
 });
@@ -94,6 +99,8 @@ app.post("/users",function(req,res,next){
     return next(err);
    });
 });
+
+// this is the redirect to load the users pages
 app.get('/users/:userId/:newName',function(req,res,next)
 {
   var userID=req.params.userId;
