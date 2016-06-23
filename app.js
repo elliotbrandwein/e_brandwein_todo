@@ -60,8 +60,8 @@ app.get('/',function(req,res){
 // creates new user
 app.post("/",function(req,res,next){
   var newName = req.body.username;
-  console.log("new user "+newName+" has been created");
-  db.none('INSERT INTO users(name)'+'values(${username})', req.body) 
+  var pass = req.body.password;
+   db.none('INSERT INTO users(name,password)'+'values(${newName},${password})',{ newName:newName,password:pass}) 
   .then(function (data){  
     res.render('index', {newName:'Account Created'})
   })
@@ -69,12 +69,14 @@ app.post("/",function(req,res,next){
     var err = new Error('Already exists');
     return next(err);
   });
+  console.log("new user "+newName+" has been created");
 });
 
 //loads the to-do page of a user with all thier old to-do's
 app.post("/users",function(req,res,next){
   var newName=req.body.username;
-  db.one('select * from users where name=${username} ' ,{username:newName})
+  var pass=req.body.password;
+  db.one('select * from users where name=${username} and password=${password} ' ,{username:newName,password:pass})
    .then(function (data){
     var ID = data.id;
     db.manyOrNone('select id,message,userid from messages where userId=${id}',{id:ID})
@@ -88,7 +90,7 @@ app.post("/users",function(req,res,next){
       })
    })
    .catch(function(data){
-    var err = new Error('name not found');
+    var err = new Error('name not found or password incorrect');
     return next(err);
    });
 });
