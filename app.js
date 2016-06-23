@@ -38,11 +38,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 var pgp = require('pg-promise')(options);
 var db = pgp('postgres://postgres:123@localhost:5432/to_do');
 
+
+
 // gets all the users
 app.get('/users',function(req,res,next){
   db.any('SELECT name FROM users')
   .then(function(data){
-    console.log(data+" got the users");
+    console.log("all the users names has been listed");
     res.render('login',{ data: data });
   })
   .catch(function(err){
@@ -58,7 +60,7 @@ app.get('/',function(req,res){
 // creates new user
 app.post("/",function(req,res,next){
   var newName = req.body.username;
-  console.log(newName+" got the new user");
+  console.log("new user "+newName+" has been created");
   db.none('INSERT INTO users(name)'+'values(${username})', req.body) 
   .then(function (data){  
     res.render('index', {newName:'Account Created'})
@@ -75,10 +77,10 @@ app.post("/users",function(req,res,next){
   db.one('select * from users where name=${username} ' ,{username:newName})
    .then(function (data){
     var ID = data.id;
-    db.manyOrNone('select id,message from messages where userId=${id}',{id:ID})
+    db.manyOrNone('select id,message,userid from messages where userId=${id}',{id:ID})
       .then(function(data){
-        console.log(data+" got from loading user"); 
-        res.render('to_do',{username:newName,data:data,id:ID})
+        console.log("user "+ newName+ "'s stuff has been loaded"); 
+        res.render('to_do',{username:newName,data:data,userId:ID})
       })
       .catch(function(data){
         var err = new Error ('name found, message-getter messed up');
@@ -91,38 +93,65 @@ app.post("/users",function(req,res,next){
    });
 });
 
-
 // add's a new to-do message
-app.post("/to_do/:userId",function(req,res,next){
-  var userID = req.params.userId;
-  var message = req.body.newTodo;
-  db.none('insert into messages (userid,message) values (${1},${2})',{1:userID,2:message})
-  .then({}).catch(function(data){
-       res.redirect('/users/');
-      });
-   db.manyOrNone('select id,message from messages where userId=${id}',{id:userID})
+app.post("/to_do/:userId/:username",function(req,res,next){
+  var ID = req.params.userId;
+  var newName = req.params.username;
+  var newMessage = req.body.newTodo;
+  db.none('insert into messages (userid,message) values (${1},${2})',{1:ID,2:newMessage})
+  .then(function(data){})
+  .catch(function(data)
+  {
+      var err = new Error('message not added');
+      return next(err);
+  });
+ db.manyOrNone('select id,message,userid from messages where userid=${id}' ,{id:ID})
       .then(function(data){
-        console.log(data+ " from adding new message"); 
-        res.render('to_do',{username:newName,data:data,id:ID})
+        console.log("user "+ newName+ "'s stuff has been loaded, with new mesasge"); 
+        res.render('to_do',{username:newName,data:data,userId:ID})
       })
       .catch(function(data){
-        var err = new Error ('name found, message-getter messed up');
+        var err = new Error ('re-loading after new message has failed');
         return next(err);
-      })
+      });
 });
+
 // delete to-do message
-app.post("/delete/to_do/:id",function(req,res,next){
-  var  id = req.params.id;
-  //db.none('delete from messages where id=$1',id)
-  //.then(function(data){
-  //  res.render('to_do'){username:newName,data:data,deleteMessage:'Message Deleted'},id:id}
-  //})
-  //.catch(function(data){
-  //});
+app.post("/delete/to_do/:id/:userid",function(req,res,next){
+  var messageID = req.params.id;
+  var userID = req.params.userid;
+  var newName="";
+
+  // first i need to get the name to load in for later
+  db.one('select * from users where id=$1',userID)
+  .then(function(data){
+    newName = data.name;
+  })
+  .catch(function(data){
+        var err = new Error('failed to get the name');
+        return next(err);
+  });
+  // second we delete the message 
+  console.log(newName);
+  db.none('delete from messages where id=$1',messageID)
+  .then(function(data){console.log("message deleted");})
+  .catch(function(data){
+        var err = new Error('message not deleted');
+        return next(err);
+  });
+
+  //third we reload the page with the message deleted
+  db.manyOrNone('select id,message,userid from messages where userid=${id}' ,{id:userID})
+      .then(function(data){
+        console.log("user "+ newName+ "'s stuff has been loaded, with new mesasge"); 
+        res.render('to_do',{username:newName,data:data,userId:userID})
+      })
+      .catch(function(data){
+        var err = new Error ('re-loading after new message has failed');
+        return next(err);
+      });
+      
 });
-
-
-
 
 
 

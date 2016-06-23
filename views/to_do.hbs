@@ -3,13 +3,13 @@
 
 	{{#each data}}
 	<div class="to_do">
-	<form action="/delete/to_do/{{this.id}}/{{username}}" method="POST" class="delete">
+	<form action="/delete/to_do/{{this.id}}/{{this.userid}}" method="POST" class="delete">
 	<button>X</button>
 	<a class="message"> {{this.message}}</a>
 	</form>
 	</div>
 	{{/each}}
-<form action="/to_do/{{this.id}}" method="POST">
+<form action="/to_do/{{this.userId}}/{{username}}" method="POST">
 	<input type="text" placeholder="new To-do" name="newTodo">
 	<input type="submit"  value="create new to-do">
 </form>
