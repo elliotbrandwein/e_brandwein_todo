@@ -17,8 +17,13 @@
 	{{/each}}
 <form action="/to_do/{{this.userId}}/{{username}}" method="POST">
 	<input type="text" placeholder="New To-Do" name="newTodo">
-	<!--<input type="date" placeholder="New Due Date" name="newDate">-->
-	<select name="month">
+	<input type="date" placeholder="New Due Date" name="newDate">
+	<input type="submit"  value="Create New To-Do">
+</form>
+<h1>{{this.message}}</h1>
+
+<!--
+<select name="month">
 	<option value="" selected>Select Month</option>
 	<option value="1">Jan</option>
 	<option value="2">Feb</option>
@@ -57,8 +62,4 @@
  	<option value="2025">2025</option>
  	<option value="2026">2026</option>
 	</select>
-	<input type="submit"  value="Create New To-Do">
-</form>
-<h1>{{this.message}}</h1>
-
-
+-->

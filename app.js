@@ -102,7 +102,7 @@ app.get('/users/:userId/:newName',function(req,res,next)
   // i need the id for deletion later,the message for the user, the due_date for user, and userid for insertion
   db.any('select id,message,userid,due_date from messages where userid=${id}' ,{id:userID})
       .then(function(data){ 
-        res.render('to_do',{username:oldName,data:data,userId:userID})
+        res.render('to_do',{username:oldName,data:data,userId:userID});
       })
       .catch(function(err){
         return next(err);
@@ -113,21 +113,15 @@ app.get('/users/:userId/:newName',function(req,res,next)
 app.post("/to_do/:userId/:username",function(req,res,next){
   var ID = req.params.userId;
   var newName = req.params.username;
-  var day = req.body.day;
-  var month= req.body.month;
-  var year = req.body.year;
-  var due_date=(year+'/'+month+'/'+day);
-  if(day==="" || month==="" || year===""){
-    res.render('to_do',{username:oldName,data:data,userId:userID})
-  }
+  var due_date = req.body.newDate;
   var newMessage = req.body.newTodo;
   // first we insert the new message and second we reload the page with the new message added
-  db.none('insert into messages (userid,message,due_date) values (${1},${2},to_date(${3},'YYYY/MM/DD' )'
-  ,{1:ID,2:newMessage})
+  db.none('insert into messages (userid,message,due_date) values (${1},${2},${3})'
+  ,{1:ID,2:newMessage,3:due_date})
   .then(function(){
     // if successful,we redirect
-     console.log("new message added")
-    res.redirect('/users/'+userID+'/'+newName+'/'+'Message Added')
+    console.log("new message added");
+    res.redirect('/users/'+ID+'/'+newName+'/'+'Message Added');
   })
   .catch(function(err)
   {
@@ -167,6 +161,7 @@ app.get('/users/:userId/:newName/:message',function(req,res,next)
   var userID=req.params.userId;
   var oldName = req.params.newName;
   var message = req.params.message;
+  console.log("in the redirect");
   // i need the id for deletion later,the message for the user, the due_date for user, and userid for insertion
   db.any('select id,message,userid,due_date from messages where userid=${id}' ,{id:userID})
       .then(function(data){ 
