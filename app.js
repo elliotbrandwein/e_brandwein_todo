@@ -84,15 +84,7 @@ app.post("/users",function(req,res,next){
   db.one('select * from users where name=${username} and password=${password} ' ,{username:newName,password:pass})
    .then(function (data){
     var ID = data.id;
-    db.manyOrNone('select id,message,userid from messages where userId=${id}',{id:ID})
-      .then(function(data){
-        console.log("user "+ newName+ "'s stuff has been loaded"); 
-        res.render('to_do',{username:newName,data:data,userId:ID})
-      })
-      .catch(function(data){
-        var err = new Error ('name found, message-getter messed up');
-        return next(err);
-      })
+    res.redirect('/users/'+ID+'/'+newName);
    })
    .catch(function(data){
     var err = new Error('name not found or password incorrect');
@@ -105,9 +97,9 @@ app.get('/users/:userId/:newName',function(req,res,next)
 {
   var userID=req.params.userId;
   var oldName = req.params.newName;
-  db.any('select id,message,userid from messages where userid=${id}' ,{id:userID})
-      .then(function(data){
-        console.log("user "+ oldName+ "'s stuff has been loaded, with new mesasge"); 
+  // i need the id for deletion later,the message for the user, the due_date for user, and userid for insertion
+  db.any('select id,message,userid,due_date from messages where userid=${id}' ,{id:userID})
+      .then(function(data){ 
         res.render('to_do',{username:oldName,data:data,userId:userID})
       })
       .catch(function(err){
@@ -128,7 +120,8 @@ app.post("/to_do/:userId/:username",function(req,res,next){
       var err = new Error('message not added');
       return next(err);
   });
-
+  
+  console.log("new message added")
   // second we reload the page with the new message
   res.redirect('/users/'+ID+'/'+newName);
 
