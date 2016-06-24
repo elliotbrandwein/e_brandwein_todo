@@ -87,8 +87,10 @@ app.post("/users",function(req,res,next){
     res.redirect('/users/'+ID+'/'+newName);
    })
    .catch(function(data){
-    var err = new Error('name not found or password incorrect');
-    return next(err);
+    //var err = new Error('name not found or password incorrect');
+    //return next(err);
+    res.render('index', {newName:'That was not a valid name or password'});
+    res.redirect
    });
 });
 
@@ -114,14 +116,14 @@ app.post("/to_do/:userId/:username",function(req,res,next){
   var day = req.body.day;
   var month= req.body.month;
   var year = req.body.year;
-  var due_date=(year+"/"+month+"/"+day);
+  var due_date=(year+'/'+month+'/'+day);
   if(day==="" || month==="" || year===""){
     res.render('to_do',{username:oldName,data:data,userId:userID})
   }
   var newMessage = req.body.newTodo;
   // first we insert the new message and second we reload the page with the new message added
-  db.none('insert into messages (userid,message,due_date) values (${1},${2},to_date( ${3},"YYYY/MM/DD") )'
-  ,{1:ID,2:newMessage,3:due_date})
+  db.none('insert into messages (userid,message,due_date) values (${1},${2},to_date(${3},'YYYY/MM/DD' )'
+  ,{1:ID,2:newMessage})
   .then(function(){
     // if successful,we redirect
      console.log("new message added")
