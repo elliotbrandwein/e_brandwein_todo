@@ -6,17 +6,41 @@ body {
 a {
   text-decoration: none;
 }
-#message{
-	width: 5%;
-	text-align: center;
+.message{
+	width: 45%;
+	/*text-align: center;
+	color: blue;
+	*/
 	float: left;
-	color: black;
+}
+.header{
+	width: 50%;
+	float: left;
+}
+.date{
+	width:50%;
+	float: left;
 	clear: right;
 }
 #delete{
 	float: left;
  	width: 10%;
 }
-#to_do{
+.to_do{
+}
+ .logout {
+ float: right;
+}
+@media all and (max-width: 900px)
+{   
+	.message{
+		position: absolute;
 
+	}
+	.date{
+		position: absolute;
+    	left: 200px;
+    	top: 200;
+    	font-size: 85%; 
+	}
 }

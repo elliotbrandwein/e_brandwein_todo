@@ -106,25 +106,32 @@ app.get('/users/:userId/:newName',function(req,res,next)
         return next(err);
       }); 
 });
+
 // add's a new to-do message
 app.post("/to_do/:userId/:username",function(req,res,next){
   var ID = req.params.userId;
   var newName = req.params.username;
+  var day = req.body.day;
+  var month= req.body.month;
+  var year = req.body.year;
+  var due_date=(year+"/"+month+"/"+day);
+  if(day==="" || month==="" || year===""){
+    res.render('to_do',{username:oldName,data:data,userId:userID})
+  }
   var newMessage = req.body.newTodo;
-
-  // first we insert the new message
-  db.none('insert into messages (userid,message) values (${1},${2})',{1:ID,2:newMessage})
-  .then(function(){})
+  // first we insert the new message and second we reload the page with the new message added
+  db.none('insert into messages (userid,message,due_date) values (${1},${2},to_date( ${3},"YYYY/MM/DD") )'
+  ,{1:ID,2:newMessage,3:due_date})
+  .then(function(){
+    // if successful,we redirect
+     console.log("new message added")
+    res.redirect('/users/'+userID+'/'+newName+'/'+'Message Added')
+  })
   .catch(function(err)
   {
       var err = new Error('message not added');
       return next(err);
   });
-  
-  console.log("new message added")
-  // second we reload the page with the new message
-  res.redirect('/users/'+ID+'/'+newName);
-
 });
 
 // delete to-do message
@@ -146,15 +153,27 @@ app.post("/delete/to_do/:id/:userid",function(req,res,next){
   console.log(newName);
   db.none('delete from messages where id=$1',messageID)
   .then(function(data){console.log("message deleted");
-    res.redirect('/users/'+userID+'/'+newName);})
+    res.redirect('/users/'+userID+'/'+newName+'/'+'Message Deleted');})
   .catch(function(data){
         var errorr = new Error('message not deleted');
         return next(err);
   });
-
-      
 });
 
+app.get('/users/:userId/:newName/:message',function(req,res,next)
+{
+  var userID=req.params.userId;
+  var oldName = req.params.newName;
+  var message = req.params.message;
+  // i need the id for deletion later,the message for the user, the due_date for user, and userid for insertion
+  db.any('select id,message,userid,due_date from messages where userid=${id}' ,{id:userID})
+      .then(function(data){ 
+        res.render('to_do',{username:oldName,data:data,userId:userID,message:message})
+      })
+      .catch(function(err){
+        return next(err);
+      }); 
+});
 
 
 
